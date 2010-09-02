@@ -1,13 +1,14 @@
 **A simple (and very early) Scala wrapper to access "eXist DB":http://exist.sourceforge.net/ and potentially other XML:DB implementations**
 
-The basic idea (some background and details can be found in "this blog post":http://fsteeg.wordpress.com/2010/08/30/scala-object-persistence-and-the-original-nosql-xml/):
+The basic idea (some background and details can be found in "this blog post":http://fsteeg.wordpress.com/2010/08/30/scala-object-persistence-and-the-original-nosql-xml/, sample usage in the "tests":http://github.com/fsteeg/sinist/blob/master/src/test/scala/com/quui/sinist/XmlDbSpec.scala):
 
-bc. 
-val db = XmlDb() // pass optional location, root and collection prefix
+bc. val db = XmlDb() // pass optional location, root and collection prefix
 db.putXml(<some><xml>element</xml></some>, collId, xmlDocId)
 db.putBin("data".getBytes, collId, binDocId)
 val xml: Option[List[Elem]] = db.getXml(collId)
 val bin: Option[List[Array[Byte]]] = db.getBin(collId)
+
+Setup: @git clone git://github.com/fsteeg/sinist.git@; @cd sinist@; @sbt@
 
 To run the tests, have an eXist DB running via @startup.sh@ at @xmldb:exist://localhost:8080/exist/xmlrpc@
 
@@ -17,4 +18,4 @@ Building with "SBT":http://code.google.com/p/simple-build-tool/:
 * test
 * package
 
-This will fetch dependencies, run the tests, and create a jar in the @target@ directory.
+This will fetch dependencies, run the tests, and create a jar in the @sinist/target@ directory.
