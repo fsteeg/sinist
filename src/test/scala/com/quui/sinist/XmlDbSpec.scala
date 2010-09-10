@@ -22,13 +22,14 @@ class XmlDbSpec extends Spec with ShouldMatchers {
 
   describe("The XmlDb") {
 
-    val db = XmlDb() // pass optional location, root and collection prefix
+    val location = "xmldb:exist://localhost:8080/exist/xmlrpc"
+    val db = XmlDb(location) // pass optional location, root and collection prefix
     val coll = "test-coll"
     val xml: Elem = <some><xml>element</xml></some>
     val xmlDocId = "test-xml-id"
     val binDocId = "test-bin-id"
     val pretty = new PrettyPrinter(200, 2)
-
+    
     it("can be used to store and retrieve XML elements") {
       expect(pretty format xml) {
         db.putXml(xml, coll, xmlDocId)
@@ -67,6 +68,15 @@ class XmlDbSpec extends Spec with ShouldMatchers {
         db.putXml(<and>{ oldXml }</and>, coll, xmlDocId)
         pretty format db.getXml(coll, xmlDocId).get(0)
       }
+    }
+    
+    it("has an informative toString representation") {
+      expect(true) { db.toString.contains(location) }
+    }
+    
+    it("can be checked for availability") {
+      expect(true) { db.isAvailable }
+      expect(false) { XmlDb("xmldb:exist://localhost:1111/exist/xmlrpc").isAvailable }
     }
 
   }

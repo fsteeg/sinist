@@ -7,6 +7,8 @@
  *************************************************************************************************/
 package com.quui.sinist
 
+import java.net.URL
+import org.xmldb.api.base.ErrorCodes
 import scala.xml.Elem
 import scala.xml.XML
 import java.io.File
@@ -78,7 +80,16 @@ class XmlDb(
     case None => None
     case Some(coll) => Some(List() ++ coll.listResources)
   }
+  
+  def isAvailable:Boolean = 
+    try { 
+      DatabaseManager.getCollection(location+root).listResources; true
+    } catch { 
+      case _ => false
+    }
 
+  override def toString = "%s@%s".format(getClass.getSimpleName, location+root+prefix)
+    
   private def put(content: Object, collectionId: String, id: String, kind: XmlDb.Format.Value): Unit = {
     val collectionName = prefix + collectionId
     val collectionPath = root + collectionName
