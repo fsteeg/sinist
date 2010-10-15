@@ -78,6 +78,11 @@ class XmlDbSpec extends Spec with ShouldMatchers {
       expect(true) { db.isAvailable }
       expect(false) { XmlDb("xmldb:exist://localhost:1111/exist/xmlrpc").isAvailable }
     }
+    
+    it("equals another DB at the same location") {
+      val location = "xmldb:exist://localhost:1111/exist/xmlrpc"
+      expect(XmlDb(location)) { XmlDb(location) }
+    }
 
   }
 }

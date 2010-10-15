@@ -35,13 +35,9 @@ object XmlDb {
     val BIN = Value(classOf[BinaryResource].getSimpleName)
   }
 
-  def apply(
-    location: String = XmlDb.DefaultLocation,
-    root: String = XmlDb.DefaultRoot,
-    prefix: String = XmlDb.DefaultPrefix) = new XmlDb(location, root, prefix)
 }
 
-class XmlDb(
+case class XmlDb(
   location: String = XmlDb.DefaultLocation,
   root: String = XmlDb.DefaultRoot,
   prefix: String = XmlDb.DefaultPrefix) {
