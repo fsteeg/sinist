@@ -22,13 +22,20 @@ class XmlDbSpec extends Spec with ShouldMatchers {
 
   describe("The XmlDb") {
 
-    val location = "xmldb:exist://localhost:8080/exist/xmlrpc"
-    val db = XmlDb(location) // pass optional location, root and collection prefix
+    val location = "xmldb:exist://localhost:8080/exist/xmlrpc/"
+    val db = XmlDb(location, "db", "test") // pass optional location, root and collection prefix
     val coll = "test-coll"
     val xml: Elem = <some><xml>element</xml></some>
     val xmlDocId = "test-xml-id"
     val binDocId = "test-bin-id"
     val pretty = new PrettyPrinter(200, 2)
+    
+    it("allows access to its parameters") {
+      expect(location) {db.location}
+      expect("db/") {db.root}
+      expect("test/") {db.prefix}
+      expect("XmlDb@xmldb:exist://localhost:8080/exist/xmlrpc/db/test/") { db.toString }
+    }
     
     it("can be used to store and retrieve XML elements") {
       expect(pretty format xml) {

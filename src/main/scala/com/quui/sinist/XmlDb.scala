@@ -38,9 +38,13 @@ object XmlDb {
 }
 
 case class XmlDb(
-  location: String = XmlDb.DefaultLocation,
-  root: String = XmlDb.DefaultRoot,
-  prefix: String = XmlDb.DefaultPrefix) {
+  var location: String = XmlDb.DefaultLocation,
+  var root: String = XmlDb.DefaultRoot,
+  var prefix: String = XmlDb.DefaultPrefix) {
+  
+  /* Is there a nicer way to fix class parameters, without making them vars? */
+  location = fixed(location); root = fixed(root); prefix = fixed(prefix)
+  private def fixed(s:String) = if(s.endsWith("/")) s else s + "/"
 
   DatabaseManager.registerDatabase(new DatabaseImpl()) // XML:DB implementation
 
