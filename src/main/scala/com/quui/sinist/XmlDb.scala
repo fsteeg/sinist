@@ -1,10 +1,10 @@
-/**************************************************************************************************
- * Copyright (c) 2010 Fabian Steeg. All rights reserved. This program and the accompanying materials
+/**
+ * Copyright (c) 2010-2011 Fabian Steeg. All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0 which accompanies this
  * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  * <p/>
  * Contributors: Fabian Steeg - initial API and implementation
- *************************************************************************************************/
+ */
 package com.quui.sinist
 
 import java.net.URL
@@ -19,32 +19,32 @@ import org.xmldb.api.modules.CollectionManagementService
 import org.xmldb.api.DatabaseManager
 import org.xmldb.api.base.Collection
 import org.exist.xmldb.DatabaseImpl
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.methods._
+import org.apache.commons.httpclient._
+
 /**
- * Simple wrapper to the eXist XML:DB.
+ * Simple wrapper to the eXist XML DB using RPC and REST.
  * @author Fabian Steeg (fsteeg)
  */
 object XmlDb {
-
-  val DefaultLocation = "xmldb:exist://localhost:8080/exist/xmlrpc"
-  val DefaultRoot = "/db/"
-  val DefaultPrefix = ""
-
   object Format extends Enumeration {
     type Format = Value
     val XML = Value(classOf[XMLResource].getSimpleName)
     val BIN = Value(classOf[BinaryResource].getSimpleName)
   }
-
 }
 
 case class XmlDb(
-  var location: String = XmlDb.DefaultLocation,
-  var root: String = XmlDb.DefaultRoot,
-  var prefix: String = XmlDb.DefaultPrefix) {
-  
-  /* Is there a nicer way to fix class parameters, without making them vars? */
-  location = fixed(location); root = fixed(root); prefix = fixed(prefix)
-  private def fixed(s:String) = if(s.endsWith("/")) s else s + "/"
+  server: String = "localhost",
+  port: Int = 8080,
+  user: String = "guest",
+  pass: String = "guest") {
+
+  val rpcRoot = insert("xmldb:exist://%s:%s/exist/xmlrpc/db/")
+  val restRoot = insert("http://%s:%s/exist/rest/db/")
+
+  private def insert(s: String) = s.format(server, port)
 
   DatabaseManager.registerDatabase(new DatabaseImpl()) // XML:DB implementation
 
@@ -80,20 +80,19 @@ case class XmlDb(
     case None => None
     case Some(coll) => Some(List() ++ coll.listResources)
   }
-  
-  def isAvailable:Boolean = 
-    try { 
-      DatabaseManager.getCollection(location+root).listResources; true
-    } catch { 
+
+  def isAvailable: Boolean =
+    try {
+      DatabaseManager.getCollection(rpcRoot).listResources; true
+    } catch {
       case _ => false
     }
 
-  override def toString = "%s@%s".format(getClass.getSimpleName, location+root+prefix)
-    
+  override def toString = "%s@%s".format(getClass.getSimpleName, rpcRoot)
+
   private def put(content: Object, collectionId: String, id: String, kind: XmlDb.Format.Value): Unit = {
-    val collectionName = prefix + collectionId
-    val collectionPath = root + collectionName
-    var collection = DatabaseManager.getCollection(location + collectionPath)
+    val collectionName = collectionId
+    var collection = DatabaseManager.getCollection(rpcRoot + collectionName, user, pass)
     if (collection == null) collection = createCollection(collectionName)
     val resource = collection.createResource(id, kind.toString)
     resource.setContent(content)
@@ -101,20 +100,53 @@ case class XmlDb(
   }
 
   private def collection(name: String): Option[Collection] = {
-    val collection = DatabaseManager.getCollection(location + root + prefix + name)
+    val collection = DatabaseManager.getCollection(rpcRoot + name, user, pass)
     if (collection == null) None else Some(collection)
   }
 
   private def createCollection(name: String): Collection = {
     try {
-      DatabaseManager.getCollection(location + root)
+      DatabaseManager.getCollection(rpcRoot, user, pass)
         .getService(classOf[CollectionManagementService].getSimpleName, "1.0")
         .asInstanceOf[CollectionManagementService]
         .createCollection(name)
     } catch {
       case x: XMLDBException => throw new IllegalStateException(
-        "Could not create collection in DB at %s (%s)".format(location, x.getMessage), x)
+        "Could not create collection in DB at %s (%s)".format(rpcRoot, x.getMessage), x)
     }
+  }
+
+  def query(collectionId: String, full: Elem): Elem = {
+    post(restRoot + collectionId, full.toString)
+  }
+
+  def query(collectionId: String, q: String): Elem = {
+    val cdata = "<![CDATA[%s]]>".format(q)
+    val full =
+      <query xmlns="http://exist.sourceforge.net/NS/exist">
+        <text>
+          { scala.xml.Unparsed(cdata) }
+        </text>
+        <properties>
+          <property name="indent" value="yes"/>
+        </properties>
+      </query>
+    query(collectionId, full)
+  }
+
+  private val Http = new HttpClient
+
+  def post(url: String, body: String) = {
+    val method = new PostMethod(url)
+    method.setRequestEntity(new StringRequestEntity(body, "text/xml", "utf-8"))
+    execute(method)
+  }
+
+  def get(url: String) = execute(new GetMethod(url))
+
+  private def execute(m: HttpMethodBase) = {
+    try { Http.executeMethod(m) } catch { case e => e.printStackTrace() }
+    XML.loadString(new String(m.getResponseBody))
   }
 
 }
