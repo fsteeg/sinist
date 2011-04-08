@@ -1,4 +1,6 @@
-**A simple (and very early) Scala wrapper to access "eXist DB":http://exist.sourceforge.net/**
+h2. A simple (and very early) Scala wrapper to access "eXist DB":http://exist.sourceforge.net/
+
+h3. Usage
 
 Store and retrieve XML and binary objects:
 
@@ -17,9 +19,13 @@ You can query with XQuery and Lucene query syntax:
 
 bc. val res = db.query("test", "for $m in //note[ft:query(., 'text?')]/ancestor::p return $m")
 
-Full sample usage (includes index setup and queries on attributes) can be found in the "XmlDbSpec":http://github.com/fsteeg/sinist/blob/master/src/test/scala/com/quui/sinist/XmlDbSpec.scala. Some background and details can be found in "this blog post":http://fsteeg.wordpress.com/2010/08/30/scala-object-persistence-and-the-original-nosql-xml/.
+Full sample usage (includes index setup and queries on attributes) can be found in the "XmlDbSpec":http://github.com/fsteeg/sinist/blob/master/src/test/scala/com/quui/sinist/XmlDbSpec.scala. 
 
-Setup: @git clone git://github.com/fsteeg/sinist.git@; @cd sinist@; @sbt@
+Some background and details can be found in "this blog post":http://fsteeg.wordpress.com/2010/08/30/scala-object-persistence-and-the-original-nosql-xml/.
+
+h3. Setup
+
+@git clone git://github.com/fsteeg/sinist.git@; @cd sinist@; @sbt@
 
 To run the tests, have an eXist DB running via @startup.sh@ at @localhost:7777@ (or change port in @XmlDbSpec@).
 
