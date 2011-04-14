@@ -48,8 +48,8 @@ case class XmlDb(
 
   DatabaseManager.registerDatabase(new DatabaseImpl()) // XML:DB implementation
 
-  def put(file: File, kind: XmlDb.Format.Value): Unit = {
-    put(file, new File(file.getParent).getName, file.getName, kind)
+  def put(file: File, kind: XmlDb.Format.Value, collection:String = "", id:String = ""): Unit = {
+    put(file, if(collection == "") new File(file.getParent).getName else collection, if(id == "") file.getName else id, kind)
   }
 
   def putXml(xml: Elem, coll: String, id: String): Unit = put(xml.toString, coll, id, XmlDb.Format.XML)
