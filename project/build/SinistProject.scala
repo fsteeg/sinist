@@ -11,7 +11,7 @@ import sbt._
 class SinistProject(info: ProjectInfo) extends DefaultProject(info) {
   val junit = "junit" % "junit" % "4.8.1"
   val log4j = "log4j" % "log4j" % "1.2.16"
-  val scalaTest = "org.scalatest" % "scalatest" % "1.2"
+  val scalaTest = "org.scalatest" % "scalatest_2.9.1" % "1.6.1"
   val xerces = "xerces" % "xercesImpl" % "2.9.1"
   val wsCommonsUtil = "org.apache.ws.commons.util" % "ws-commons-util" % "1.0.2"
   val xmlrpcClient = "org.apache.xmlrpc" % "xmlrpc-client" % "3.1.3"
