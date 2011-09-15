@@ -49,6 +49,10 @@ class XmlDbSpec extends FlatSpec with ShouldMatchers {
       new String(res)
     }
   }
+  
+  it should "indicate if storing did not work" in {
+    intercept[IllegalStateException] { XmlDb(port = 1111).putBin("data".getBytes, coll, binDocId) }
+  }
 
   it should "allow access to all ids of stored pages of a collection" in {
     2 should equal { db.getIds(coll).get.size } // we added on XML, one BIN
