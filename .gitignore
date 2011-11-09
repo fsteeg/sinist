@@ -1,7 +1,11 @@
 target/
+.target
+.cache
 lib_managed/
 src_managed/
 project/boot/
 bin/
 .scala_dependencies
 .DS_Store
+.classpath
+.project
